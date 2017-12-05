@@ -21,26 +21,26 @@ import Deepfold.Ops as Ops
 
 class SphericalBaseModel(BaseModel):
     @staticmethod
-    def create_avgpool_layer(index,
-                             input,
-                             ksize,
-                             strides):
+    def create_spherical_avgpool_layer(index,
+                                       input,
+                                       ksize,
+                                       strides):
 
         pool = Ops.avg_pool_spherical(input, ksize, strides, padding='VALID', name="spherical_avg_pool%d" % (index))
 
         return {'pool': pool}
 
     @staticmethod
-    def create_conv3D_layer(index,
-                            input,
-                            window_size_r,
-                            window_size_theta,
-                            window_size_phi,
-                            channels_out,
-                            stride_r=1,
-                            stride_theta=1,
-                            stride_phi=1,
-                            padding='VALID'):
+    def create_spherical_conv_layer(index,
+                                    input,
+                                    window_size_r,
+                                    window_size_theta,
+                                    window_size_phi,
+                                    channels_out,
+                                    stride_r=1,
+                                    stride_theta=1,
+                                    stride_phi=1,
+                                    padding='VALID'):
 
         filter_shape = [window_size_r, window_size_theta, window_size_phi, input.get_shape().as_list()[-1],
                         channels_out]
