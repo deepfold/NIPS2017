@@ -13,6 +13,7 @@
 # limitations under the License.
 # =============================================================================
 
+from __future__ import print_function
 import glob
 import os
 import warnings
@@ -30,7 +31,7 @@ warnings.simplefilter(action = "ignore", category = FutureWarning)
 
 from Deepfold import grid
 
-from data.parse_pdbs import parse_pdb
+from parse_pdbs import parse_pdb
 
 
 # DSSP to SS-index(H, E, C)
@@ -198,12 +199,12 @@ def embed_in_grid(features, pdb_id, output_dir,
     for residue_index in np.unique(features[['res_index']].view(int)):
 
         # Extract origin
-        if (np.logical_and(res_indices == residue_index, features[['name']].view('a5') == "CA").any() and
-            np.logical_and(res_indices == residue_index, features[['name']].view('a5') == "N").any() and
-            np.logical_and(res_indices == residue_index, features[['name']].view('a5') == "C").any()):
-            CA_feature = features[np.argmax(np.logical_and(res_indices == residue_index, features[['name']].view('a5') == "CA"))]
-            N_feature = features[np.argmax(np.logical_and(res_indices == residue_index, features[['name']].view('a5') == "N"))]
-            C_feature = features[np.argmax(np.logical_and(res_indices == residue_index, features[['name']].view('a5') == "C"))]
+        if (np.logical_and(res_indices == residue_index, features[['name']].view('a5') == b"N").any() and
+            np.logical_and(res_indices == residue_index, features[['name']].view('a5') == b"CA").any() and
+            np.logical_and(res_indices == residue_index, features[['name']].view('a5') == b"C").any()):
+            CA_feature = features[np.argmax(np.logical_and(res_indices == residue_index, features[['name']].view('a5') == b"CA"))]
+            N_feature = features[np.argmax(np.logical_and(res_indices == residue_index, features[['name']].view('a5') == b"N"))]
+            C_feature = features[np.argmax(np.logical_and(res_indices == residue_index, features[['name']].view('a5') == b"C"))]
         else:
             # Store None to maintain indices
             indices_list.append(None)
@@ -283,7 +284,7 @@ def embed_in_grid(features, pdb_id, output_dir,
         if include_center:
             selector = np.where(r < max_radius)[0]
         else:
-            # ALSO exclude features from residue itself 
+            # ALSO exclude features from residue itself
             selector = np.where(np.logical_and(r < max_radius, res_indices[:,0] != residue_index))[0]
 
         # Apply selector on indices array
@@ -299,16 +300,16 @@ def embed_in_grid(features, pdb_id, output_dir,
                 if index_matches[0] not in duplicates:
                     duplicates[index_matches[0]] = index_matches
         if len(duplicates) > 0:
-            print "WARNING: multiple atoms in same grid bin: (%s)" % pdb_id
+            print("WARNING: multiple atoms in same grid bin: (%s)" % pdb_id)
             for duplicate_indices in duplicates.values():
                 for i in duplicate_indices:
-                    print "\t", features[selector][i]
+                    print("\t", features[selector][i])
                 for i_index in range(len(duplicate_indices)):
                     coord1 = features[selector][duplicate_indices[i_index]][['x','y','z']].view(np.float32)
                     for j_index in range(i_index+1,len(duplicate_indices)):
                         coord2 = features[selector][duplicate_indices[j_index]][['x','y','z']].view(np.float32)
-                        print '\t\tdistance(%s,%s) = %s' % (coord1, coord2,np.linalg.norm(coord2 - coord1))
-                print
+                        print('\t\tdistance(%s,%s) = %s' % (coord1, coord2,np.linalg.norm(coord2 - coord1)))
+                print()
                                 
         # Append indices and selector for current residues to list
         indices_list.append(indices)
@@ -349,12 +350,12 @@ def extract_atomistic_features(pdb_filename, max_radius, n_features, bins_per_an
     Creates both atom-level and residue-level (grid) features from a pdb file
     """
     
-    print pdb_filename
+    print(pdb_filename)
 
     # Extract basic atom features (mass, charge, etc)
-    pdb_id, features, masses_array, charges_array,
-    aa_one_hot, ss_one_hot, residue_index_array,
-    chain_boundary_indices, chain_ids = extract_mass_charge(pdb_filename,
+    pdb_id, features, masses_array, charges_array, \
+        aa_one_hot, ss_one_hot, residue_index_array, \
+        chain_boundary_indices, chain_ids = extract_mass_charge(pdb_filename,
                                                             dssp_executable)
 
     # Save protein level features
@@ -399,7 +400,7 @@ def fetch_and_extract(line, max_radius, n_features, bins_per_angstrom, add_seq_d
     # Check that entry has expected format
     entry = line.split()[0]
     if len(entry) != 5:
-        print "skipping: %s" % (entry)
+        print("skipping: %s" % (entry))
         return
 
     # Extract PDBID, ChainID and URL from entry
@@ -410,7 +411,7 @@ def fetch_and_extract(line, max_radius, n_features, bins_per_angstrom, add_seq_d
     # Parse structures and call extract_atomistic_features
     try:
         structure = parse_pdb(urllib.urlopen(url), pdb_id, chain_id, reduce_executable)
-        print "%s OK" % (entry)
+        print("%s OK" % (entry))
         io = Bio.PDB.PDBIO()
         io.set_structure(structure)
         pdb_filename = os.path.join(pdb_output_dir, entry+'.pdb')
@@ -419,7 +420,7 @@ def fetch_and_extract(line, max_radius, n_features, bins_per_angstrom, add_seq_d
         extract_atomistic_features(pdb_filename, max_radius, n_features, bins_per_angstrom, add_seq_distance_feature,
                                    output_dir, coordinate_system, z_direction, include_center, dssp_executable)
     except Exception as e:
-        print "%s Failed: %s" % (entry, e)
+        print("%s Failed: %s" % (entry, e))
         pass
 
     
@@ -461,14 +462,14 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    print "# Arguments"
-    for key, value in sorted(vars(args).iteritems()):
-        print key, "=", value
+    print("# Arguments")
+    for key, value in sorted(vars(args).items()):
+        print(key, "=", value)
 
     n_features = 2
     if args.add_seq_distance_feature:
         n_features = 3
-    print "n_features: ", n_features
+    print("n_features: ", n_features)
     
     coordinate_system = grid.CoordinateSystem[args.coordinate_system]
     z_direction = grid.ZDirection[args.z_direction]

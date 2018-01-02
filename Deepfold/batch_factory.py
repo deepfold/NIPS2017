@@ -13,9 +13,10 @@
 # limitations under the License.
 # =============================================================================
 
+from __future__ import print_function
 import numpy as np
 import random
-import grid
+from . import grid
 import os
 
 def get_batch(start_index, end_index, *values):
@@ -429,6 +430,6 @@ if __name__ == '__main__':
             labels = batch["model_output"]
 
 
-            print grid_matrix.shape
-            print labels.shape
+            print(grid_matrix.shape)
+            print(labels.shape)
     

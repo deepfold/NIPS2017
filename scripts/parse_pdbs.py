@@ -13,6 +13,7 @@
 # limitations under the License.
 # =============================================================================
 
+from __future__ import print_function
 import numpy as np
 import os
 import sys
@@ -26,7 +27,10 @@ import simtk.openmm.app
 import pdbfixer
 import Bio.PDB.Polypeptide
 import Bio.SeqIO
-import StringIO
+try:
+    import StringIO
+except:
+    from io import StringIO
 
 if not 'TRN' in pdbfixer.pdbfixer.substitutions:
     pdbfixer.pdbfixer.substitutions['TRN'] = 'TRP'
@@ -70,7 +74,7 @@ def parse_pdb(pdb_filehandle, pdb_id, reduce_executable, dssp_executable,
             self.chain_letters = chain_letters
 
         def accept_residue(self, residue):
-            print residue.get_resname(), residue.id[0] == " ", residue.get_resname() in pdbfixer.pdbfixer.substitutions
+            print(residue.get_resname(), residue.id[0] == " ", residue.get_resname() in pdbfixer.pdbfixer.substitutions)
             return residue.id[0] == " " or (residue.get_resname() in pdbfixer.pdbfixer.substitutions)
 
         def accept_model(self, model):
@@ -122,7 +126,7 @@ def parse_pdb(pdb_filehandle, pdb_id, reduce_executable, dssp_executable,
             if not (number_of_pps == 1 and len(pps[0]) == len(seq)) :
                 if verbose:
                     for pp in pps:
-                        print pp.get_sequence()
+                        print(pp.get_sequence())
                 raise ChainBreakError
 
         # Check whether sequence in PDB structure matches sequence in seqres
@@ -204,7 +208,7 @@ def parse_pdb(pdb_filehandle, pdb_id, reduce_executable, dssp_executable,
                     io = Bio.PDB.PDBIO()
                     io.set_structure(structure_after)
                     with tempfile.NamedTemporaryFile(delete=False) as temp4:
-                        print "\t", temp4.name
+                        print("\t", temp4.name)
                         
                         io.save(temp4)        
                         temp4.flush()
@@ -243,7 +247,7 @@ def parse_pdb(pdb_filehandle, pdb_id, reduce_executable, dssp_executable,
     try:
         system = forcefield.createSystem(pdb.getTopology())
     except ValueError as e:
-        print e
+        print(e)
         raise OpenMMParseError2
 
     return structure
@@ -296,11 +300,11 @@ if __name__ == '__main__':
 
         pdb_id = os.path.basename(pdb_filename).replace(".pdb", "").split('_')[0]
         
-        print pdb_filename
+        print(pdb_filename)
         try:
             structure = parse_pdb(handle, pdb_id, options.reduce_executable, options.dssp_executable, use_pdb_fixer=options.use_pdb_fixer, allow_chain_breaks=options.allow_chain_breaks, allow_incomplete_pdb=options.allow_incomplete_pdb, verbose=options.verbose)
         except IncompletePDBError as e:
-            print e.message.values()[0]
+            print(e.message.values()[0])
             raise
 
         io = Bio.PDB.PDBIO()

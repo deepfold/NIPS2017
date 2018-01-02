@@ -13,6 +13,8 @@
 # limitations under the License.
 # =============================================================================
 
+from __future__ import print_function
+
 if __name__ == '__main__':
     import glob
     import os
@@ -60,9 +62,9 @@ if __name__ == '__main__':
 
     options = parser.parse_args()
 
-    print "# Options"
+    print("# Options")
     for key, value in sorted(vars(options).iteritems()):
-        print key, "=", value
+        print(key, "=", value)
 
     high_res_protein_feature_filenames = sorted(glob.glob(os.path.join(options.high_res_features_input_dir, "*protein_features.npz")))
     high_res_grid_feature_filenames = sorted(glob.glob(os.path.join(options.high_res_features_input_dir, "*residue_features.npz")))
@@ -72,11 +74,11 @@ if __name__ == '__main__':
     train_end = validation_start = int(validation_end-options.validation_set_size)
     test_end = len(high_res_protein_feature_filenames)
 
-    print "# Data:"
-    print "Total size: ", len(high_res_protein_feature_filenames)
-    print "Training size: ", train_end - train_start
-    print "Validation size: ", validation_end - validation_start
-    print "Test size: ", test_end - test_start
+    print ("# Data:")
+    print ("Total size: ", len(high_res_protein_feature_filenames))
+    print ("Training size: ", train_end - train_start)
+    print ("Validation size: ", validation_end - validation_start)
+    print ("Test size: ", test_end - test_start)
     
     if options.mode == 'train':
         batch_factory = BatchFactory()
@@ -186,12 +188,12 @@ if __name__ == '__main__':
             Q_test = np.mean(identical)
             loss_test = loss
 
-            print Q_test, loss_test, ",".join([pdb_id for pdb_id in set(batch["pdb"])])
+            print(Q_test, loss_test, ",".join([pdb_id for pdb_id in set(batch["pdb"])]))
 
         # Print the overall scores
         Q_test = np.mean(all_identical)
         loss_test = np.mean(all_entropies) + regularization
 
-        print "# Statistics for the whole dataset:"
-        print "# Q%s score (test set): %f" % (output_size, Q_test)
-        print "# loss (test set): %f" % (loss_test)
+        print("# Statistics for the whole dataset:")
+        print("# Q%s score (test set): %f" % (output_size, Q_test))
+        print("# loss (test set): %f" % (loss_test))
