@@ -223,9 +223,9 @@ class BatchFactory:
         
         if grid_feature_filenames is None:
             grid_feature_filenames = [None]*len(protein_feature_filenames)
-        
-        for protein_feature_filename, grid_feature_filename in zip(sorted(protein_feature_filenames),
-                                                                   sorted(grid_feature_filenames)):
+
+        for protein_feature_filename, grid_feature_filename in zip(sorted(protein_feature_filenames, key=lambda x: x if x is not None else "ZZZ"),
+                                                                   sorted(grid_feature_filenames, key=lambda x: x if x is not None else "ZZZ")):
 
             pdb_id = os.path.basename(protein_feature_filename)[0:5]
 
@@ -254,13 +254,13 @@ class BatchFactory:
         '''Randomize order of pdb_ids'''
 
         # Randomize order
-        feature_pdb_ids = self.features.keys()
+        feature_pdb_ids = list(self.features.keys())
         random.shuffle(feature_pdb_ids)
 
         # Repopulate self.features_expanded
         self.features_expanded = []
         for pdb_id in feature_pdb_ids:
-            n_residues = len(self.features[pdb_id].values()[0])
+            n_residues = len(list(self.features[pdb_id].values())[0])
             self.features_expanded += zip([pdb_id]*n_residues, range(n_residues))
 
         # Reset index counter
@@ -277,7 +277,7 @@ class BatchFactory:
             subbatch_sizes = []
             if enforce_protein_boundaries:
                 pdb_ids = []
-                for i in xrange(max_size):
+                for i in range(max_size):
                     index = (self.feature_index+i) % len(self.features_expanded)
                     pdb_ids.append(self.features_expanded[index][0])
                 indices = sorted(np.unique(pdb_ids, return_index=True)[1])
@@ -312,7 +312,7 @@ class BatchFactory:
                 n_subbatches = max_size//subbatch_max_size
                 if max_size%subbatch_max_size > 0:
                     n_subbatches += 1
-                subbatch_size_array = np.array([max_size/n_subbatches]*n_subbatches)
+                subbatch_size_array = np.array([max_size//n_subbatches]*n_subbatches)
                 remainder = max_size%n_subbatches
                 subbatch_size_array[np.arange(remainder)] += 1
                 subbatch_sizes = subbatch_size_array
